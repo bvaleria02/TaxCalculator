@@ -16,7 +16,7 @@ TCErrorCode TCCreateDataTable(DataTable *dt){
 	dt->view = gtk_tree_view_new();
 
 	//store = gtk_list_store_new(3, G_TYPE_DOUBLE, G_TYPE_DOUBLE, G_TYPE_DOUBLE);
-	dt->store = gtk_list_store_new(3, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT);
+	dt->store = gtk_list_store_new(3, G_TYPE_LONG, G_TYPE_LONG, G_TYPE_LONG);
 
   	dt->renderer = gtk_cell_renderer_text_new();
 
@@ -55,16 +55,20 @@ TCErrorCode TCCreateDataTable(DataTable *dt){
 
 	dt->clear = gtk_button_new_with_label("Borrar");
 	g_signal_connect(GTK_OBJECT(dt->clear), "clicked", G_CALLBACK(deleteEverythingTree), dt);
+
+	dt->hasChanged = 0;
 	return TC_NO_ERROR;
 }
 
 void TCCreateNewTableRow(DataTable *dt, double valueWithTaxes, double valueWithoutTaxes, double valueFivePercentWithoutTaxes){
  	gtk_list_store_append(dt->store, &(dt->iter));
  	gtk_list_store_set(dt->store, &(dt->iter),
-                      0, (int) valueWithTaxes,
-                      1, (int) valueWithoutTaxes,
-                      2, (int) valueFivePercentWithoutTaxes,
+                      0, (long int) valueWithTaxes,
+                      1, (long int) valueWithoutTaxes,
+                      2, (long int) valueFivePercentWithoutTaxes,
                       -1);
+
+	dt->hasChanged = 1;
 }
 
 TCErrorCode TCSetSizeDataTable(DataTable *dt, int x, int y){

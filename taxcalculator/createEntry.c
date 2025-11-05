@@ -34,23 +34,25 @@ TCErrorCode TCCreateEntry(TextEntry *te, const char *label, double defaultValue)
 	return TC_NO_ERROR;
 }
 
-void incrementTenFunc(GtkWidget *widget, CallbackPointers *cp){
-	CalculatorApp *ca = cp->ca;
-	TextEntry *te = cp->te;
+void incrementTenFunc(GtkWidget *widget, gpointer pcp){
+	CallbackPointers cp = *(CallbackPointers *)pcp;
+	CalculatorApp 	*ca = cp.ca;
+	TextEntry 		*te = cp.te;
 
-	double value = getDoubleFromEntry(te->entry, ca);
+	double value = getDoubleFromTextEntry(te, ca);
 	value *= 10;
 	char buffer[MAX_BUFFER_SIZE];
 	convertDoubleToString(buffer, MAX_BUFFER_SIZE, value);
 	gtk_entry_set_text(GTK_ENTRY(te->entry), buffer);
 }
 
-void decrementTenFunc(GtkWidget *widget, CallbackPointers *cp){
-	CalculatorApp *ca = cp->ca;
-	TextEntry *te = cp->te;
+void decrementTenFunc(GtkWidget *widget, gpointer pcp){
+	CallbackPointers cp = *(CallbackPointers *)pcp;
+	CalculatorApp 	*ca = cp.ca;
+	TextEntry 		*te = cp.te;
 
 	double value = getDoubleFromEntry(te->entry, ca);
-	value /= 10;
+	value /= 10.0f;
 	char buffer[MAX_BUFFER_SIZE];
 	convertDoubleToString(buffer, MAX_BUFFER_SIZE, value);
 	gtk_entry_set_text(GTK_ENTRY(te->entry), buffer);
@@ -62,15 +64,10 @@ void resetFunc(GtkWidget *widget, TextEntry *te){
 	gtk_entry_set_text(GTK_ENTRY(te->entry), buffer);
 }
 
-TCErrorCode TCAddButtonsEntry(TextEntry *te, CalculatorApp *ca, bool reset, bool incdec){
-	if(te == NULL){
+TCErrorCode TCAddButtonsEntry(TextEntry *te, CallbackPointers *pcp, bool reset, bool incdec){
+	if(te == NULL || pcp == NULL){
 		return TC_ERROR_NULLPTR;
 	}
-
-	CallbackPointers cp;
-	cp.ca = ca;
-	cp.te = te;
-
 
 	if(reset){
 		te->reset = gtk_button_new_with_label("Reiniciar");
@@ -81,8 +78,8 @@ TCErrorCode TCAddButtonsEntry(TextEntry *te, CalculatorApp *ca, bool reset, bool
 		te->tenInc = gtk_button_new_with_label("* 10");
 		te->tenDec = gtk_button_new_with_label("/ 10");
 
-		g_signal_connect(GTK_OBJECT(te->tenInc), "clicked", G_CALLBACK(incrementTenFunc), &cp);
-		g_signal_connect(GTK_OBJECT(te->tenDec), "clicked", G_CALLBACK(decrementTenFunc), &cp);
+		g_signal_connect(GTK_OBJECT(te->tenInc), "clicked", G_CALLBACK(incrementTenFunc), pcp);
+		g_signal_connect(GTK_OBJECT(te->tenDec), "clicked", G_CALLBACK(decrementTenFunc), pcp);
 	}
 
 	return TC_NO_ERROR;
@@ -143,5 +140,18 @@ TCErrorCode TCSetCallbackEntries(CalculatorApp *ca){
 	TCSetCallbackEntry(&(ca->priceWithoutTaxes), ca, G_CALLBACK(TCCalculatePriceFromNoTaxToTax));
 	TCSetCallbackEntry(&(ca->priceFivePercent),  ca, G_CALLBACK(TCCalculatePriceFromFivePercent));
 
+	return TC_NO_ERROR;
+}
+
+TCErrorCode TCResetAllEntries(CalculatorApp *ca){
+	if(ca == NULL){
+		return TC_ERROR_NULLPTR;
+	}
+
+	resetFunc(NULL, &(ca->priceWithTaxes));
+	resetFunc(NULL, &(ca->priceWithoutTaxes));
+	resetFunc(NULL, &(ca->priceFivePercent));
+	resetFunc(NULL, &(ca->config.taxes));
+	
 	return TC_NO_ERROR;
 }
