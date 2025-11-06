@@ -2,7 +2,7 @@ CC = gcc
 FLAGS = `pkg-config --cflags gtk+-2.0`
 TARGET = main
 SRCS = main.c ./taxcalculator/*.c
-LINKS = `pkg-config --cflags --libs gtk+-2.0`
+LINKS = `pkg-config --cflags --libs gtk+-2.0` -lm
 MINGW =  x86_64-w64-mingw32-gcc
 WINTARGET = main.exe
 

@@ -3,6 +3,10 @@
 #include <string.h>
 #include "libtaxcalculator.h"
 
+void TCTerminateWindow(GtkWidget *widget, CalculatorApp *ca){
+	gtk_main_quit();
+}
+
 void TCDestroyWindow(GtkWidget *widget, CalculatorApp *ca){
 	TCResponse response;	
 

@@ -14,6 +14,12 @@
 #define MAX_BUFFER_SIZE 128
 #define DEFAULT_TABLE_HEIGHT 17
 #define DEFAULT_TABLE_WIDTH 8
+#define DEFAULT_OFFSET_X_INCREMENT 64
+#define DEFAULT_OFFSET_Y_INCREMENT 64
+#define DEFAULT_SCALE_INCREMENT 1.25
+#define DEFAULT_OFFSET_X 0
+#define DEFAULT_OFFSET_Y 0
+#define DEFAULT_SCALE 1.0
 
 typedef enum{
 	TC_NO_ERROR 		= 0,
@@ -68,6 +74,12 @@ typedef struct{
 	GtkWidget *save;
 	GtkWidget *load;
 	GtkWidget *quit;
+	GtkWidget *quitNoSave;
+
+	GtkWidget *menuCreate;
+	GtkWidget *createItem;
+	GtkWidget *graph;
+
 } ContextMenu;
 
 typedef struct{
@@ -78,12 +90,79 @@ typedef struct{
 } FileMenu;
 
 typedef struct{
+	GtkWindow *window;
+	GtkWidget *area;
+	GtkWidget *vbox;
+	GtkWidget *container;
+
+	long dataSize;
+	long sizeCounter;
+	long *priceWithTaxes;
+	long *priceWithoutTaxes;
+	long *priceFivePercent;
+	bool showPriceWithTaxes;
+	bool showPriceWithoutTaxes;
+	bool showPriceFivePercent;
+
+	int width;
+	int height;
+	double offsetX;
+	double offsetY;
+	double scale;
+	double minX;
+	double minY;
+	double maxX;
+	double maxY;
+	double minXView;
+	double minYView;
+	double maxXView;
+	double maxYView;
+	bool useMinZero;
+
+	GtkWidget *buttonsHBox;
+	GtkWidget *subOffsetX;
+	GtkWidget *addOffsetX;
+	GtkWidget *subOffsetY;
+	GtkWidget *addOffsetY;
+	GtkWidget *addScale;
+	GtkWidget *subScale;
+	GtkWidget *reset;
+	GtkWidget *useAbsMin;
+
+	GtkWidget *subMinX;
+	GtkWidget *addMinX;
+	GtkWidget *subMinY;
+	GtkWidget *addMinY;
+
+	GtkWidget *subMaxX;
+	GtkWidget *addMaxX;
+	GtkWidget *subMaxY;
+	GtkWidget *addMaxY;
+
+	GtkWidget *menubar;
+	GtkWidget *menuFile;
+	GtkWidget *fileItem;
+	GtkWidget *save;
+	GtkWidget *quit;
+
+	GtkWidget *menuCanvas;
+	GtkWidget *canvasItem;
+	GtkWidget *resetMenu;
+	GtkWidget *useAbsZeroMenu;
+	GtkWidget *useTrueZeroMenu;
+	GtkWidget *togglePriceWithTaxes;
+	GtkWidget *togglePriceWithoutTaxes;
+	GtkWidget *togglePriceFivePercent;
+} GraphContext;
+
+typedef struct{
 	TextEntry priceWithTaxes;
 	TextEntry priceWithoutTaxes;
 	TextEntry priceFivePercent;
 	ConfigApp config;
 	ContextMenu menu;
 	DataTable spreadsheet;
+	GraphContext graph;
 	FileMenu fileMenu;
 	GtkWidget *mainTable;
 	GtkWidget *window;
@@ -127,6 +206,7 @@ TCErrorCode TCPlaceConfig(CalculatorApp *ca);
 double raiseErrorNonNumericTaxes(CalculatorApp *ca);
 double raiseErrorNonNumeric(CalculatorApp *ca);
 TCResponse TCAskSaveDialog(CalculatorApp *calculatorApp);
+TCErrorCode TCErrorFileReadDialog(CalculatorApp *calculatorApp, const gchar *filename);
 TCResponse TCGetFileDialog(CalculatorApp *ca);
 TCResponse TCAskSaveBeforeLoadDialog(CalculatorApp *ca);
 
@@ -141,12 +221,16 @@ void TCDestroyWindow(GtkWidget *widget, CalculatorApp *ca);
 TCErrorCode TCCreateWindow(CalculatorApp *calculatorApp);
 TCErrorCode TCRunWindow(CalculatorApp *calculatorApp);
 TCErrorCode TCPlaceElements(CalculatorApp *calculatorApp);
+void TCTerminateWindow(GtkWidget *widget, CalculatorApp *ca);
 
 // spreadsheet.c
+void deleteEverythingTree(GtkWidget *widget, DataTable *dt);
 TCErrorCode TCCreateDataTable(DataTable *dt);
 void TCCreateNewTableRow(DataTable *dt, double valueWithTaxes, double valueWithoutTaxes, double valueFivePercentWithoutTaxes);
 TCErrorCode TCSetSizeDataTable(DataTable *dt, int x, int y);
 TCErrorCode TCPlaceDataTable(CalculatorApp *ca);
+gboolean TCCountElementsTable(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, CalculatorApp *ca);
+gboolean TCCopyElementsFromTable(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, CalculatorApp *ca);
 
 // menu.c
 TCErrorCode TCCreateMenu(CalculatorApp *ca);
@@ -157,5 +241,17 @@ void TCExitFilenameFileSelection(GtkWidget *widget, CalculatorApp *ca);
 void TCGetFilenameFromFileSelection(GtkWidget *widget, CalculatorApp *ca);
 TCErrorCode TCSaveData(CalculatorApp *ca);
 TCErrorCode TCLoadData(CalculatorApp *ca);
+
+// graph.c
+void TCConnectorCreateGraph(GtkWidget *widget, CalculatorApp *ca);
+TCErrorCode TCCreateGraph(CalculatorApp *ca);
+TCErrorCode TCInitGraph(CalculatorApp *ca);
+TCErrorCode TCDestroyGraphData(CalculatorApp *ca);
+TCErrorCode TCCreateMenuGraph(CalculatorApp *ca);
+TCErrorCode TCAddActionsMenuGraph(CalculatorApp *ca);
+TCErrorCode TCDrawDataGraph(CalculatorApp *ca, cairo_t *cr, long *data);
+TCErrorCode TCDrawLegendGraph(CalculatorApp *ca, cairo_t *cr);
+void TCSaveGraph(GtkWidget *widget, CalculatorApp *ca);
+void TCDrawingPipelineGraph(GtkWidget *widget, cairo_t *cr, CalculatorApp *ca);
 
 #endif // LIB_TAX_CALCULATOR_H

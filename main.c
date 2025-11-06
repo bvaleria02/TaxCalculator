@@ -8,7 +8,7 @@ int main(int argc, char **argv){
 
 	CalculatorApp calculatorApp;
 	TCCreateWindow(&calculatorApp);
-	
+
 	CallbackPointers cpPriceWithTaxes;
 	cpPriceWithTaxes.ca = &calculatorApp;
 	cpPriceWithTaxes.te = &(calculatorApp.priceWithTaxes);

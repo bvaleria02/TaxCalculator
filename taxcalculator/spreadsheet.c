@@ -103,3 +103,45 @@ TCErrorCode TCPlaceDataTable(CalculatorApp *ca){
 
 	return TC_NO_ERROR;
 }
+
+gboolean TCCountElementsTable(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, CalculatorApp *ca){
+	/*
+	gtk_tree_model_get(
+			model, iter,
+			0, &priceWithTaxes,
+			1, &priceWithoutTaxes,
+			2, &priceFivePercent,
+			-1
+	);
+*/
+	ca->graph.dataSize += 1;
+
+	return false;
+}
+
+gboolean TCCopyElementsFromTable(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, CalculatorApp *ca){
+	long int priceWithTaxes;
+	long int priceWithoutTaxes;
+	long int priceFivePercent;
+
+	gtk_tree_model_get(
+			model, iter,
+			0, &priceWithTaxes,
+			1, &priceWithoutTaxes,
+			2, &priceFivePercent,
+			-1
+	);
+
+	if(ca->graph.sizeCounter >= ca->graph.dataSize){
+		return true;
+	}
+
+	ca->graph.priceWithTaxes[ca->graph.sizeCounter] = priceWithTaxes;
+	ca->graph.priceWithoutTaxes[ca->graph.sizeCounter] = priceWithoutTaxes;
+	ca->graph.priceFivePercent[ca->graph.sizeCounter] = priceFivePercent;
+
+	ca->graph.sizeCounter += 1;
+
+	return false;
+}
+

@@ -10,7 +10,6 @@ TCErrorCode TCCreateMenu(CalculatorApp *ca){
 
 	ca->menu.menubar = gtk_menu_bar_new();
 	ca->menu.fileItem = gtk_menu_item_new_with_label("Archivo");
-//	gtk_container_add(GTK_CONTAINER(ca->vbox), ca->menu.menubar);
 	gtk_container_add(GTK_CONTAINER(ca->menu.menubar), ca->menu.fileItem);
 
 	ca->menu.menuFile = gtk_menu_new();
@@ -19,14 +18,24 @@ TCErrorCode TCCreateMenu(CalculatorApp *ca){
 	ca->menu.blank = gtk_menu_item_new_with_label("Nuevo");
 	ca->menu.load = gtk_menu_item_new_with_label("Abrir");
 	ca->menu.save = gtk_menu_item_new_with_label("Guardar");
+	ca->menu.quitNoSave = gtk_menu_item_new_with_label("Salir sin guardar");
 	ca->menu.quit = gtk_menu_item_new_with_label("Salir");
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(ca->menu.menuFile), ca->menu.blank);
 	gtk_menu_shell_append(GTK_MENU_SHELL(ca->menu.menuFile), ca->menu.load);
 	gtk_menu_shell_append(GTK_MENU_SHELL(ca->menu.menuFile), ca->menu.save);
+	gtk_menu_shell_append(GTK_MENU_SHELL(ca->menu.menuFile), ca->menu.quitNoSave);
 	gtk_menu_shell_append(GTK_MENU_SHELL(ca->menu.menuFile), ca->menu.quit);
 
-	gtk_menu_shell_append(GTK_MENU_SHELL(ca->menu.menubar), ca->menu.fileItem);
+	ca->menu.createItem = gtk_menu_item_new_with_label("Crear");
+	gtk_container_add(GTK_CONTAINER(ca->menu.menubar), ca->menu.createItem);
+
+	ca->menu.menuCreate = gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(ca->menu.createItem), ca->menu.menuCreate);
+
+	ca->menu.graph = gtk_menu_item_new_with_label("Gráfica desde tabla");
+
+	gtk_menu_shell_append(GTK_MENU_SHELL(ca->menu.menuCreate), ca->menu.graph);
 
 	gtk_box_pack_start(GTK_BOX(ca->vbox), ca->menu.menubar, false, false, 0);
 	return TC_NO_ERROR;
@@ -75,8 +84,10 @@ TCErrorCode TCAddActionsMenu(CalculatorApp *ca){
 	g_signal_connect(GTK_OBJECT(ca->menu.blank), "activate", G_CALLBACK(TCBlankAdapter), ca);
 	g_signal_connect(GTK_OBJECT(ca->menu.save), "activate", G_CALLBACK(TCSaveAdapter), ca);
 	g_signal_connect(GTK_OBJECT(ca->menu.load), "activate", G_CALLBACK(TCLoadAdapter), ca);
+	g_signal_connect(GTK_OBJECT(ca->menu.quitNoSave), "activate", G_CALLBACK(TCTerminateWindow), ca);
 	g_signal_connect(GTK_OBJECT(ca->menu.quit), "activate", G_CALLBACK(TCDestroyWindow), ca);
 
+	g_signal_connect(GTK_OBJECT(ca->menu.graph), "activate", G_CALLBACK(TCConnectorCreateGraph), ca);
 
 	return TC_NO_ERROR;
 }
